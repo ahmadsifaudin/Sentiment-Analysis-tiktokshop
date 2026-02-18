@@ -138,7 +138,7 @@ html, body, [class*="css"] {
     background: rgba(255,255,255,0.04) !important;
     border: 1px solid rgba(255,255,255,0.1) !important;
     border-radius: 12px !important;
-    color: #e8e8f0 !important;
+    color: #000000 !important;
     font-family: 'DM Sans', sans-serif !important;
     font-size: 1rem !important;
     resize: vertical !important;
