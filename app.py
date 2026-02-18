@@ -1,11 +1,12 @@
 import streamlit as st
+import joblib  # Import joblib to load the models
 import numpy as np
 
 # Load the models and vectorizer
-vectorizer = ('tfidf_vectorizer.pkl')
-svm_model = ('svm_model(1).pkl')
-naive_bayes_model = ('naive_bayes_model(2).pkl')
-scaler = ('scaler.pkl')
+vectorizer = joblib.load('tfidf_vectorizer.pkl')  # Make sure the path is correct
+svm_model = joblib.load('svm_model(1).pkl')  # Make sure the path is correct
+naive_bayes_model = joblib.load('naive_bayes_model(2).pkl')  # Make sure the path is correct
+scaler = joblib.load('scaler.pkl')  # Make sure the path is correct
 
 # Define function for sentiment prediction
 def predict_sentiment(text, model, vectorizer, scaler):
