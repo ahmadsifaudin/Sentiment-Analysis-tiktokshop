@@ -1,42 +1,51 @@
 import streamlit as st
-import pickle
+import joblib
+import numpy as np
 
-# Muat model dan vectorizer yang sudah disimpan
-with open('naive_bayes_model.pkl', 'rb') as nb_file:
-    nb_model = pickle.load(nb_file)
+# Load the models and vectorizer
+vectorizer = joblib.load('tfidf_vectorizer.pkl')
+svm_model = joblib.load('svm_model(1).pkl')
+naive_bayes_model = joblib.load('naive_bayes_model(2).pkl')
+scaler = joblib.load('scaler.pkl')
 
-with open('svm_model.pkl', 'rb') as svm_file:
-    svm_model = pickle.load(svm_file)
-
-with open('vectorizer.pkl', 'rb') as vec_file:
-    vectorizer = pickle.load(vec_file)
-
-# Judul aplikasi
-st.title('Sentiment Analysis Web App')
-
-# Teks untuk prediksi
-text_input = st.text_area("Masukkan teks untuk analisis sentimen", "")
-
-# Fungsi untuk melakukan prediksi
-def predict_sentiment(text):
-    # Preprocessing dan transformasi teks
-    text_vec = vectorizer.transform([text])
+# Define function for sentiment prediction
+def predict_sentiment(text, model, vectorizer, scaler):
+    # Preprocess the text
+    text_tfidf = vectorizer.transform([text])
+    text_scaled = scaler.transform(text_tfidf)
     
-    # Prediksi dengan Naive Bayes
-    nb_pred = nb_model.predict(text_vec)
-    nb_pred_label = 'Positif' if nb_pred[0] == 1 else 'Negatif'
+    # Predict sentiment with SVM model (or Naive Bayes model)
+    prediction = model.predict(text_scaled)
+    sentiment = 'Positive' if prediction[0] == 'Positive' else ('Negative' if prediction[0] == 'Negative' else 'Neutral')
     
-    # Prediksi dengan SVM
-    svm_pred = svm_model.predict(text_vec)
-    svm_pred_label = 'Positif' if svm_pred[0] == 1 else 'Negatif'
-    
-    return nb_pred_label, svm_pred_label
+    return sentiment
 
-# Tombol untuk melakukan analisis
-if st.button("Analisis Sentimen"):
-    if text_input:
-        nb_result, svm_result = predict_sentiment(text_input)
-        st.write(f"**Prediksi dengan Naive Bayes**: {nb_result}")
-        st.write(f"**Prediksi dengan SVM**: {svm_result}")
+# Streamlit UI
+st.title('Sentiment Analysis with SVM and Naive Bayes')
+
+st.markdown("""
+    This app analyzes the sentiment of the given text.
+    You can choose between two models: **Support Vector Machine (SVM)** or **Naive Bayes**.
+""")
+
+# Get user input
+text_data = st.text_area("Enter the text you want to analyze:")
+
+model_option = st.selectbox(
+    "Choose the model for sentiment analysis:",
+    ["SVM", "Naive Bayes"]
+)
+
+# When the user clicks the "Analyze" button
+if st.button('Analyze Sentiment'):
+    if text_data:
+        # Choose the selected model
+        if model_option == 'SVM':
+            sentiment = predict_sentiment(text_data, svm_model, vectorizer, scaler)
+        else:
+            sentiment = predict_sentiment(text_data, naive_bayes_model, vectorizer, scaler)
+        
+        # Display the result
+        st.write(f"**Predicted Sentiment**: {sentiment}")
     else:
-        st.write("Silakan masukkan teks terlebih dahulu untuk analisis.")
+        st.write("Please enter some text to analyze.")
